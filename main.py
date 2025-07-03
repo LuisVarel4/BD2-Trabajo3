@@ -1,6 +1,7 @@
 import os
 from dotenv import load_dotenv
 from punto1 import obtener_rutas_baratas
+from punto2 import obtener_rutas_mas_cortas
 
 load_dotenv()
 
@@ -17,4 +18,11 @@ if __name__ == "__main__":
         neo4j_user=NEO4J_USER,
         neo4j_password=NEO4J_PASSWORD,
         mongo_uri=MONGO_URI
+    )
+    obtener_rutas_mas_cortas(
+        cod_usuario=5,
+        neo4j_uri=NEO4J_URI,
+        neo4j_user=NEO4J_USER,
+        neo4j_password=NEO4J_PASSWORD,
+        mongo_uri=MONGO_URI,
     )
