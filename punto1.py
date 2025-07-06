@@ -1,34 +1,5 @@
 from neo4j import GraphDatabase
-import heapq
-from pymongo import MongoClient
-
-def dijkstra_con_camino(graph, start):
-    distances = {node: float('inf') for node in graph}
-    previous = {node: None for node in graph}
-    distances[start] = 0
-
-    queue = [(0, start)]
-    
-    while queue:
-        current_distance, current_node = heapq.heappop(queue)
-
-        for neighbor, weight in graph.get(current_node, {}).items():
-            distance = current_distance + weight
-            if distance < distances[neighbor]:
-                distances[neighbor] = distance
-                previous[neighbor] = current_node
-                heapq.heappush(queue, (distance, neighbor))
-
-    return distances, previous
-
-
-def reconstruir_camino(previous, destino):
-    path = []
-    while destino:
-        path.insert(0, destino)
-        destino = previous[destino]
-    return path
-
+from helpers import dijkstra_con_camino, reconstruir_camino, obtener_viajes_deseados
 
 def construir_grafo(uri, user, password, modo):
     driver = GraphDatabase.driver(uri, auth=(user, password))
@@ -52,14 +23,6 @@ def construir_grafo(uri, user, password, modo):
 
     return grafo
 
-
-def obtener_viajes_deseados(cod_usuario, mongo_uri="mongodb://localhost:27017"):
-    client = MongoClient(mongo_uri)
-    db = client["viajes"]
-    viajes = db["viajes_deseados"].find({"usu": cod_usuario})
-    return list(viajes)
-
-
 def obtener_rutas_baratas(
     cod_usuario, medio, 
     neo4j_uri, neo4j_user, neo4j_password, 
@@ -68,6 +31,7 @@ def obtener_rutas_baratas(
     grafo = construir_grafo(neo4j_uri, neo4j_user, neo4j_password, medio)
     viajes = obtener_viajes_deseados(cod_usuario, mongo_uri)
 
+    print()
     for viaje in viajes:
         origen = viaje["nom_lugar_inicio"]
         destino = viaje["nom_lugar_destino"]
