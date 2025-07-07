@@ -20,21 +20,29 @@ def insert_lugares(lugares):
 def insert_conexiones(conexiones):
     def _insert(tx):
         for origen, destino, dist, avion, bus in conexiones:
-            tx.run("""
+            tx.run(
+                """
                 MATCH (a:LUGAR {nombre: $origen}), (b:LUGAR {nombre: $destino})
                 MERGE (a)-[:CONEXION {distancia: $dist, costo_avion: $avion, costo_bus: $bus}]->(b)
-                MERGE (b)-[:CONEXION {distancia: $dist, costo_avion: $avion, costo_bus: $bus}]->(a)
-            """, origen=origen, destino=destino, dist=dist, avion=avion, bus=bus)
+            """,
+                origen=origen,
+                destino=destino,
+                dist=dist,
+                avion=avion,
+                bus=bus,
+            )
     with driver.session() as session:
         session.execute_write(_insert)
     print(f"{len(conexiones)} conexiones insertadas/actualizadas.")
 
+# Ejemplo de uso:
 if __name__ == "__main__":
-    lugares = ["Cali", "Bogotá", "Medellín", "Villavicencio"]
+    lugares = ["Bogotá", "Medellín"]
     conexiones = [
-        ("Cali", "Bogotá", 447, 70, 15),
-        ("Cali", "Medellín", 435, 65, 10),
-        ("Bogotá", "Medellín", 417, 50, 7),
-        ("Bogotá", "Villavicencio", 86, 25, 5),
-        ("Medellín", "Villavicencio", 503, 52, 20)
+        # Bogotá - Medellín
+        ("Bogotá", "Medellín", 417, 52, 8),
+        ("Medellín", "Bogotá", 417, 50, 7),
     ]
+    insert_lugares(lugares)
+    insert_conexiones(conexiones)
+    driver.close()

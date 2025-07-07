@@ -15,10 +15,13 @@ lugares = [
 
 conexiones = [
     ("Cali", "Bogotá", 447, 70, 15),
-    ("Cali", "Medellín", 435, 65, 10),
-    ("Bogotá", "Medellín", 417, 50, 7),
-    ("Bogotá", "Villavicencio", 86, 25, 5),
-    ("Medellín", "Villavicencio", 503, 52, 20)
+    ("Bogotá", "Cali", 447, 65, 15),
+    ("Cali", "Medellín", 435, 60, 10),
+    ("Medellín", "Cali", 435, 55, 8),
+    ("Bogotá", "Medellín", 417, 52, 8),
+    ("Medellín", "Bogotá", 417, 50, 7),
+    ("Bogotá", "Villavicencio", 128, 25, 5),
+    ("Villavicencio", "Bogotá", 128, 25, 5),
 ]
 
 def seed(tx):
@@ -27,11 +30,17 @@ def seed(tx):
         tx.run("CREATE (:LUGAR {nombre: $nombre})", nombre=lugar)
 
     for origen, destino, dist, avion, bus in conexiones:
-        tx.run("""
+        tx.run(
+            """
             MATCH (a:LUGAR {nombre: $origen}), (b:LUGAR {nombre: $destino})
             CREATE (a)-[:CONEXION {distancia: $dist, costo_avion: $avion, costo_bus: $bus}]->(b)
-            CREATE (b)-[:CONEXION {distancia: $dist, costo_avion: $avion, costo_bus: $bus}]->(a)
-        """, origen=origen, destino=destino, dist=dist, avion=avion, bus=bus)
+        """,
+            origen=origen,
+            destino=destino,
+            dist=dist,
+            avion=avion,
+            bus=bus,
+        )
 
 with driver.session() as session:
     session.execute_write(seed)
